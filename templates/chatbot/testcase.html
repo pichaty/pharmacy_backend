@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Case Dashboard — PharmaCare AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --teal:#1c9b8c; --teal-dark:#147a6e; --teal-light:#e6f7ee; --teal-pale:#f4fbf8;
+  --teal-mid:#b2e4da; --cream:#f8faf9; --white:#fff; --text-1:#1a2e2a;
+  --text-2:#4a6660; --text-3:#8aaba5; --border:#ddeee9;
+  --shadow:0 1px 3px rgba(28,155,140,0.08); --pass:#1c9b8c; --fail:#e74c3c;
+  --pass-bg:#e6f7ee; --fail-bg:#fdf0ee;
+}
+body { font-family:'Prompt',sans-serif; background:var(--cream); color:var(--text-1); font-size:14px; min-height:100vh; }
+.material-symbols-rounded { font-family:'Material Symbols Rounded'; font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24; font-size:20px; line-height:1; vertical-align:middle; }
+
+/* TOPBAR */
+.topbar { background:var(--white); border-bottom:1px solid var(--border); padding:0 24px; height:52px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+.topbar-left { display:flex; align-items:center; gap:12px; }
+.logo { font-size:1rem; font-weight:700; color:var(--teal); }
+.divider { width:1px; height:20px; background:var(--border); }
+.page-title { font-size:0.9rem; font-weight:600; color:var(--text-1); }
+.topbar-right { display:flex; align-items:center; gap:8px; }
+.btn { display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:8px; font-family:'Prompt',sans-serif; font-size:0.8rem; font-weight:500; cursor:pointer; transition:all 0.2s; border:none; }
+.btn-primary { background:var(--teal); color:white; }
+.btn-primary:hover { background:var(--teal-dark); }
+.btn-primary:disabled { opacity:0.6; cursor:not-allowed; }
+.btn-outline { background:white; color:var(--text-2); border:1px solid var(--border); }
+.btn-outline:hover { background:var(--teal-light); border-color:var(--teal); color:var(--teal-dark); }
+.btn-back { background:white; color:var(--text-2); border:1px solid var(--border); text-decoration:none; }
+.btn-back:hover { background:var(--teal-light); border-color:var(--teal); color:var(--teal); }
+.btn .material-symbols-rounded { font-size:16px; }
+
+/* CONTENT */
+.content { padding:20px 24px; max-width:1300px; margin:0 auto; }
+.summary-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+.summary-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:14px 16px; box-shadow:var(--shadow); }
+.summary-label { font-size:0.7rem; color:var(--text-3); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
+.summary-value { font-size:1.6rem; font-weight:700; color:var(--text-1); line-height:1; }
+.summary-value.pass { color:var(--pass); }
+.summary-value.fail { color:var(--fail); }
+.summary-value.accent { color:var(--teal); }
+.summary-sub { font-size:0.7rem; color:var(--text-3); margin-top:4px; }
+
+.progress-wrap { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-bottom:20px; box-shadow:var(--shadow); }
+.progress-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.progress-label { font-size:0.82rem; font-weight:500; color:var(--text-1); }
+.progress-pct { font-size:0.82rem; font-weight:600; color:var(--teal); }
+.progress-bar-bg { height:8px; background:var(--teal-light); border-radius:4px; overflow:hidden; }
+.progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--teal),var(--teal-dark)); border-radius:4px; transition:width 0.8s ease; }
+
+/* FILTER */
+.filter-bar { display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+.filter-chip { padding:5px 12px; border-radius:20px; border:1px solid var(--border); background:white; font-family:'Prompt',sans-serif; font-size:0.75rem; color:var(--text-2); cursor:pointer; transition:all 0.2s; }
+.filter-chip:hover { border-color:var(--teal); color:var(--teal); }
+.filter-chip.active { background:var(--teal); color:white; border-color:var(--teal); }
+.filter-sep { flex:1; }
+
+/* TABLE */
+.table-wrap { background:var(--white); border:1px solid var(--border); border-radius:10px; overflow:hidden; box-shadow:var(--shadow); }
+table { width:100%; border-collapse:collapse; }
+thead { background:var(--teal-pale); border-bottom:1px solid var(--border); }
+th { padding:10px 14px; text-align:left; font-size:0.72rem; font-weight:600; color:var(--text-2); text-transform:uppercase; letter-spacing:0.5px; white-space:nowrap; }
+td { padding:10px 14px; font-size:0.82rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+tr.data-row:hover td { background:var(--teal-pale); }
+.td-id { font-weight:600; color:var(--teal-dark); font-size:0.75rem; white-space:nowrap; }
+.td-question { max-width:280px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text-2); }
+
+/* BADGES */
+.badge-level { display:inline-block; padding:2px 8px; border-radius:10px; font-size:0.68rem; font-weight:500; }
+.badge-easy { background:#e8f5e9; color:#2e7d32; }
+.badge-medium { background:#fff8e1; color:#f57f17; }
+.badge-hard { background:#fce4ec; color:#c62828; }
+.badge-negative { background:#f3e5f5; color:#6a1b9a; }
+.badge-incomplete { background:#e3f2fd; color:#1565c0; }
+.badge-pass { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; background:var(--pass-bg); color:var(--pass); font-size:0.72rem; font-weight:600; }
+.badge-fail { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; background:var(--fail-bg); color:var(--fail); font-size:0.72rem; font-weight:600; }
+.badge-pass .material-symbols-rounded, .badge-fail .material-symbols-rounded { font-size:13px; }
+
+/* ACTION BUTTONS */
+.action-btn { width:28px; height:28px; border-radius:7px; border:1px solid var(--border); background:white; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; color:var(--text-3); transition:all 0.2s; flex-shrink:0; }
+.action-btn:hover { background:var(--teal-light); border-color:var(--teal); color:var(--teal); }
+.action-btn.open { background:var(--teal-light); border-color:var(--teal); color:var(--teal); }
+.action-btn.run-btn { color:var(--teal); border-color:var(--teal-mid); }
+.action-btn.run-btn:hover { background:var(--teal); color:white; border-color:var(--teal); }
+.action-btn .material-symbols-rounded { font-size:16px; }
+.actions-cell { display:flex; gap:6px; align-items:center; }
+.actions-divider { width:1px; height:18px; background:var(--border); margin:0 2px; }
+
+/* EXPAND ROW */
+.expand-row td { padding:0; border-bottom:2px solid var(--teal-mid); background:var(--white); }
+.expand-inner { padding:0 16px 16px; }
+
+/* Question block */
+.expand-question {
+  background:var(--teal-pale);
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:10px 14px;
+  font-size:0.83rem;
+  color:var(--text-1);
+  line-height:1.6;
+  margin-bottom:14px;
+  margin-top:14px;
+}
+.expand-question-label {
+  font-size:0.68rem; font-weight:600; color:var(--teal-dark);
+  text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px;
+}
+
+/* Compare grid */
+.expand-compare { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+.expand-box { border-radius:9px; padding:12px 14px; border:1px solid; }
+.expand-box.expected { background:var(--pass-bg); border-color:#b2dfdb; }
+.expand-box.actual { background:var(--cream); border-color:var(--border); }
+.expand-box.actual-pass { background:var(--pass-bg); border-color:#b2dfdb; }
+.expand-box.actual-fail { background:var(--fail-bg); border-color:#ffcdd2; }
+.expand-box-label { font-size:0.68rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
+.expand-box.expected .expand-box-label { color:var(--pass); }
+.expand-box.actual .expand-box-label { color:var(--text-2); }
+.expand-box.actual-pass .expand-box-label { color:var(--pass); }
+.expand-box.actual-fail .expand-box-label { color:var(--fail); }
+.expand-box-text { font-size:0.82rem; line-height:1.65; color:var(--text-1); }
+.expand-box-text ul, .expand-box-text ol { padding-left:18px; margin:4px 0; }
+.expand-box-text li { margin-bottom:2px; }
+.expand-box-text strong { font-weight:600; }
+
+/* Reason */
+.expand-reason { background:#fff8e1; border:1px solid #ffe082; border-radius:9px; padding:10px 14px; font-size:0.8rem; color:#795548; line-height:1.55; }
+.expand-reason-label { font-size:0.68rem; font-weight:600; color:#9e7040; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px; }
+
+/* RUNNING */
+.running-overlay { position:fixed; inset:0; background:rgba(255,255,255,0.9); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:300; gap:16px; }
+.running-spinner { width:40px; height:40px; border:3px solid var(--teal-light); border-top-color:var(--teal); border-radius:50%; animation:spin 0.8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.running-text { font-size:0.9rem; color:var(--text-2); font-weight:500; }
+.running-sub { font-size:0.78rem; color:var(--text-3); }
+
+.empty-state { text-align:center; padding:60px 20px; }
+.empty-state .material-symbols-rounded { font-size:48px; color:var(--teal-mid); display:block; margin-bottom:12px; }
+.empty-state h3 { font-size:1rem; color:var(--text-2); margin-bottom:6px; }
+.empty-state p { font-size:0.82rem; color:var(--text-3); }
+.hidden { display:none !important; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">Pharmacist AI</div>
+    <div class="divider"></div>
+    <div class="page-title">Test Case Dashboard</div>
+  </div>
+  <div class="topbar-right">
+    <button class="btn btn-outline" onclick="exportCSV()">
+      <span class="material-symbols-rounded">download</span>Export
+    </button>
+    <button class="btn btn-primary" id="runBtn" onclick="runTests()">
+      <span class="material-symbols-rounded">play_arrow</span>รัน Test Cases ทั้งหมด
+    </button>
+    <a href="/" class="btn btn-back">
+      <span class="material-symbols-rounded">arrow_back</span>กลับหน้า Chat
+    </a>
+  </div>
+</div>
+
+<div class="content">
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="summary-label">Total</div>
+      <div class="summary-value accent" id="totalCount">—</div>
+      <div class="summary-sub">test cases</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Pass</div>
+      <div class="summary-value pass" id="passCount">—</div>
+      <div class="summary-sub">cases</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Fail</div>
+      <div class="summary-value fail" id="failCount">—</div>
+      <div class="summary-sub">cases</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Accuracy</div>
+      <div class="summary-value accent" id="accuracy">—</div>
+      <div class="summary-sub" id="testedSub">overall</div>
+    </div>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap" style="display:none">
+    <div class="progress-header">
+      <span class="progress-label">Overall Accuracy</span>
+      <span class="progress-pct" id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-chip active" onclick="filterLevel('all',this)">All</button>
+    <button class="filter-chip" onclick="filterLevel('ง่าย',this)">Easy</button>
+    <button class="filter-chip" onclick="filterLevel('ปานกลาง',this)">Medium</button>
+    <button class="filter-chip" onclick="filterLevel('ยาก',this)">Hard</button>
+    <button class="filter-chip" onclick="filterLevel('negative',this)">Negative</button>
+    <button class="filter-chip" onclick="filterLevel('ไม่สมบูรณ์',this)">Incomplete</button>
+    <div class="filter-sep"></div>
+    <button class="filter-chip active" onclick="filterResult('all',this)">All Results</button>
+    <button class="filter-chip" onclick="filterResult('pass',this)">✓ Pass</button>
+    <button class="filter-chip" onclick="filterResult('fail',this)">✗ Fail</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>ID</th>
+          <th>Level</th>
+          <th>Question</th>
+          <th>Result</th>
+          <th>Detail</th>
+          <th>Run</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="running-overlay hidden" id="runningOverlay">
+  <div class="running-spinner"></div>
+  <div class="running-text">Running Test Cases...</div>
+  <div class="running-sub" id="runningProgress">Loading...</div>
+</div>
+
+<script>
+const CSRF_TOKEN = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+let allResults = [];
+let currentLevelFilter = 'all';
+let currentResultFilter = 'all';
+let expandedId = null;
+
+async function loadResults() {
+  try {
+    const res = await fetch('/api/testcase/cases/');
+    if (res.ok) {
+      const data = await res.json();
+      if (data.cases && data.cases.length > 0) {
+        allResults = data.cases.map(c => ({ ...c, pass:null, score:null, answer:null, reason:null }));
+        updateSummary();
+        renderTable();
+      }
+    }
+  } catch(e) { console.error(e); }
+}
+
+function updateSummary() {
+  const tested = allResults.filter(r => r.pass !== null);
+  const passed = tested.filter(r => r.pass === true);
+  document.getElementById('totalCount').textContent = allResults.length;
+  document.getElementById('passCount').textContent = passed.length || '—';
+  document.getElementById('failCount').textContent = tested.length ? (tested.length - passed.length) : '—';
+  if (tested.length > 0) {
+    const pct = Math.round(passed.length / tested.length * 100);
+    document.getElementById('accuracy').textContent = pct + '%';
+    document.getElementById('testedSub').textContent = `tested ${tested.length}/${allResults.length}`;
+    document.getElementById('progressWrap').style.display = 'block';
+    document.getElementById('progressPct').textContent = pct + '%';
+    document.getElementById('progressFill').style.width = pct + '%';
+  } else {
+    document.getElementById('accuracy').textContent = '—';
+  }
+}
+
+async function runTests() {
+  const btn = document.getElementById('runBtn');
+  const overlay = document.getElementById('runningOverlay');
+  btn.disabled = true;
+  overlay.classList.remove('hidden');
+  document.getElementById('runningProgress').textContent = 'Starting...';
+  try {
+    await fetch('/api/testcase/run/', { method:'POST', headers:{'X-CSRFToken':CSRF_TOKEN,'Content-Type':'application/json'} });
+    pollResults();
+  } catch(e) {
+    overlay.classList.add('hidden');
+    btn.disabled = false;
+    alert('Error — please try again');
+  }
+}
+
+function pollResults() {
+  const overlay = document.getElementById('runningOverlay');
+  const btn = document.getElementById('runBtn');
+  const interval = setInterval(async () => {
+    try {
+      const res = await fetch('/api/testcase/results/');
+      const data = await res.json();
+      if (data.results && data.results.length > 0) {
+        data.results.forEach(r => {
+          const idx = allResults.findIndex(c => c.id === r.id);
+          if (idx !== -1) Object.assign(allResults[idx], r);
+        });
+        updateSummary();
+        renderTable();
+        document.getElementById('runningProgress').textContent =
+          `${data.results.length} / ${allResults.length} cases done`;
+        if (data.status === 'done') {
+          clearInterval(interval);
+          overlay.classList.add('hidden');
+          btn.disabled = false;
+        }
+      }
+    } catch(e) {}
+  }, 3000);
+}
+
+async function runSingle(caseId) {
+  const r = allResults.find(c => c.id === caseId);
+  if (!r) return;
+  const btn = document.getElementById('run-' + caseId);
+  if (btn) {
+    btn.innerHTML = '<span class="material-symbols-rounded" style="animation:spin 0.8s linear infinite;display:inline-block">refresh</span>';
+    btn.disabled = true;
+  }
+  try {
+    const res = await fetch('/api/testcase/run-single/', {
+      method:'POST',
+      headers:{'X-CSRFToken':CSRF_TOKEN,'Content-Type':'application/json'},
+      body:JSON.stringify({id:r.id, input:r.input, expected:r.expected})
+    });
+    const data = await res.json();
+    Object.assign(r, data);
+    expandedId = caseId;
+    updateSummary();
+    renderTable();
+  } catch(e) {
+    alert('Error — please try again');
+    if (btn) { btn.innerHTML = '<span class="material-symbols-rounded">play_arrow</span>'; btn.disabled = false; }
+  }
+}
+
+function toggleExpand(caseId) {
+  expandedId = (expandedId === caseId) ? null : caseId;
+  renderTable();
+}
+
+function formatAnswer(text) {
+  if (!text) return '—';
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^\* (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*?<\/li>)+/gs, m => `<ul>${m}</ul>`)
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/\n/g, '<br>');
+}
+
+function renderTable() {
+  let filtered = allResults;
+  if (currentLevelFilter !== 'all') filtered = filtered.filter(r => r.level === currentLevelFilter);
+  if (currentResultFilter === 'pass') filtered = filtered.filter(r => r.pass === true);
+  else if (currentResultFilter === 'fail') filtered = filtered.filter(r => r.pass === false);
+
+  const tbody = document.getElementById('tableBody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">
+      <span class="material-symbols-rounded">science</span>
+      <h3>No results yet</h3>
+      <p>Click "Run Test Cases" or ▶ on individual cases</p>
+    </div></td></tr>`;
+    return;
+  }
+
+  let html = '';
+  filtered.forEach((r, i) => {
+    const isOpen = expandedId === r.id;
+    const resultCell = r.pass === null
+      ? '<span style="color:var(--text-3);font-size:0.75rem">—</span>'
+      : r.pass
+        ? '<span class="badge-pass"><span class="material-symbols-rounded">check_circle</span>Pass</span>'
+        : '<span class="badge-fail"><span class="material-symbols-rounded">cancel</span>Fail</span>';
+
+    html += `
+    <tr class="data-row">
+      <td style="color:var(--text-3);font-size:0.75rem">${i+1}</td>
+      <td class="td-id">${r.id}</td>
+      <td>${levelBadge(r.level)}</td>
+      <td class="td-question" title="${r.input.replace(/"/g,'&quot;')}">${r.input}</td>
+      <td>${resultCell}</td>
+      <td>
+        <button class="action-btn ${isOpen?'open':''}" onclick="toggleExpand('${r.id}')" title="View detail">
+          <span class="material-symbols-rounded">${isOpen?'expand_less':'expand_more'}</span>
+        </button>
+      </td>
+      <td>
+        <button class="action-btn run-btn" id="run-${r.id}" onclick="runSingle('${r.id}')" title="Run this case">
+          <span class="material-symbols-rounded">play_arrow</span>
+        </button>
+      </td>
+    </tr>`;
+
+    if (isOpen) {
+      const actualClass = r.pass === null ? 'actual' : r.pass ? 'actual-pass' : 'actual-fail';
+      html += `
+    <tr class="expand-row">
+      <td colspan="7">
+        <div class="expand-inner">
+          <div class="expand-question">
+            <div class="expand-question-label">Question</div>
+            ${r.input}
+          </div>
+          <div class="expand-compare">
+            <div class="expand-box expected">
+              <div class="expand-box-label">Expected Output</div>
+              <div class="expand-box-text">${r.expected || '—'}</div>
+            </div>
+            <div class="expand-box ${actualClass}">
+              <div class="expand-box-label">Bot Answer</div>
+              <div class="expand-box-text">${formatAnswer(r.answer)}</div>
+            </div>
+          </div>
+          ${r.reason ? `
+          <div class="expand-reason">
+            <div class="expand-reason-label">Judge Reason</div>
+            ${r.reason}
+          </div>` : ''}
+        </div>
+      </td>
+    </tr>`;
+    }
+  });
+
+  tbody.innerHTML = html;
+}
+
+function levelBadge(level) {
+  const map = {'ง่าย':'badge-easy','ปานกลาง':'badge-medium','ยาก':'badge-hard','negative':'badge-negative','ไม่สมบูรณ์':'badge-incomplete'};
+  const label = {'ง่าย':'Easy','ปานกลาง':'Medium','ยาก':'Hard','negative':'Negative','ไม่สมบูรณ์':'Incomplete'};
+  return `<span class="badge-level ${map[level]||''}">${label[level]||level}</span>`;
+}
+
+function filterLevel(level, el) {
+  currentLevelFilter = level;
+  document.querySelectorAll('.filter-chip').forEach(c => {
+    if (['All','Easy','Medium','Hard','Negative','Incomplete'].includes(c.textContent.trim())) c.classList.remove('active');
+  });
+  el.classList.add('active');
+  renderTable();
+}
+
+function filterResult(result, el) {
+  currentResultFilter = result;
+  document.querySelectorAll('.filter-chip').forEach(c => {
+    if (['All Results','✓ Pass','✗ Fail'].includes(c.textContent.trim())) c.classList.remove('active');
+  });
+  el.classList.add('active');
+  renderTable();
+}
+
+function exportCSV() {
+  if (allResults.length === 0) { alert('No data yet'); return; }
+  let csv = 'ID,Level,Question,Expected Output,Bot Answer,Result,Judge Reason\n';
+  allResults.forEach(r => {
+    csv += [
+      r.id, r.level,
+      `"${(r.input||'').replace(/"/g,'""')}"`,
+      `"${(r.expected||'').replace(/"/g,'""')}"`,
+      `"${(r.answer||'').replace(/"/g,'""')}"`,
+      r.pass === null ? '' : r.pass ? 'PASS' : 'FAIL',
+      `"${(r.reason||'').replace(/"/g,'""')}"`
+    ].join(',') + '\n';
+  });
+  const blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `test_results_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+loadResults();
+</script>
+</body>
+</html>
